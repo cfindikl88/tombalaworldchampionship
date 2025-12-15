@@ -12,14 +12,19 @@ export class SoundManager {
         });
     }
 
-    play(soundName) {
+    async play(soundName) {
         const sound = this.sounds[soundName];
         if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(e => {
-                // Ignore errors (e.g. if user hasn't interacted with document yet or file missing)
-                console.warn(`Could not play sound: ${soundName}`, e);
-            });
+            try {
+                sound.currentTime = 0;
+                await sound.play();
+            } catch (e) {
+                // Common error: "The user didn't interact with the document first."
+                // Only log if it's NOT an interaction error to avoid console noise
+                if (e.name !== 'NotAllowedError') {
+                    console.warn(`SoundManager: Failed to play '${soundName}'`, e);
+                }
+            }
         }
     }
 

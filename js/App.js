@@ -88,6 +88,8 @@ const CONTINENT_QUOTAS = {
     'Oceania': 3
 };
 
+import { GAME_CONFIG } from './config.js';
+
 class TombalaApp {
     constructor() {
         this.engine = new GameEngine();
@@ -1123,8 +1125,8 @@ class TombalaApp {
     }
 
     updateStats() {
-        const pTotal = 15;
-        const bTotal = 15;
+        const pTotal = GAME_CONFIG.NUMBERS_PER_CARD;
+        const bTotal = GAME_CONFIG.NUMBERS_PER_CARD;
 
         // Count marked cells (safe hits + mine hits)
         const pMarked = this.state.playerCard.flat().filter((num, idx) => {
@@ -1146,7 +1148,7 @@ class TombalaApp {
 
         // Calculate SAFE remaining (Total Numbers - Total Mines - (Marked - MineHits))
         // Player always has 3 mines -> 12 Safe Cells total
-        const pSafeTotal = pTotal - 3;
+        const pSafeTotal = pTotal - GAME_CONFIG.MINE_COUNT;
         const pSafeObtained = pMarked - pMineHits;
         const pRemaining = pSafeTotal - pSafeObtained;
 
@@ -1156,7 +1158,7 @@ class TombalaApp {
         const bRemaining = bSafeTotal - bSafeObtained;
 
         // Update UI
-        const maxLives = 3;
+        const maxLives = GAME_CONFIG.MAX_MINE_LIVES;
         const pMineLives = maxLives - pMineHits;
         const bMineLives = maxLives - bMineHits;
 

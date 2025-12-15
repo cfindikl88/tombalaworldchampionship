@@ -1,52 +1,7 @@
-/* Accessibility Improvements */
+/* CSS for Accessibility */
 
-/* Focus Visible Styles for Keyboard Navigation */
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-.country-card:focus-visible {
-    outline: 3px solid var(--accent-gold);
-    outline-offset: 4px;
-    box-shadow: 0 0 0 6px rgba(248, 178, 41, 0.2);
-}
-
-/* Remove default outline but keep for keyboard users */
-button:focus:not(:focus-visible),
-input:focus:not(:focus-visible) {
-    outline: none;
-}
-
-/* Country card keyboard navigation */
-.country-card {
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.country-card:hover,
-.country-card:focus-visible {
-    transform: translateY(-4px);
-}
-
-/* Skip to main content link (for screen readers) */
-.skip-to-main {
-    position: absolute;
-    top: -100px;
-    left: 0;
-    background: var(--primary-red);
-    color: white;
-    padding: 1rem;
-    z-index: 100000;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.skip-to-main:focus {
-    top: 0;
-}
-
-/* Screen reader only text */
-.sr-only {
+/* Visually Hidden but accessible utility */
+.visually-hidden {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -55,61 +10,11 @@ input:focus:not(:focus-visible) {
     overflow: hidden;
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
-    border-width: 0;
+    border: 0;
 }
 
-/* Reduced Motion Support */
-@media (prefers-reduced-motion: reduce) {
-
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01s !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01s !important;
-        scroll-behavior: auto !important;
-    }
-
-    /* Disable snowflakes */
-    .snowflake {
-        animation: none !important;
-        opacity: 0.1 !important;
-    }
-
-    /* Reduce ball shake */
-    .shake-animation {
-        animation: none !important;
-    }
-
-    /* Reduce pop-in effect */
-    .pop-in {
-        animation: none !important;
-    }
-}
-
-/* High Contrast Mode Support */
-@media (prefers-contrast: high) {
-    .btn {
-        border-width: 3px;
-    }
-
-    .country-card {
-        border-width: 3px;
-    }
-
-    .modal {
-        border-width: 4px;
-    }
-}
-
-/* Mobile Accessibility */
-@media (max-width: 768px) {
-
-    /* Ensure touch targets are at least 44x44px */
-    button,
-    .country-card,
-    .card-cell {
-        min-height: 44px;
-        min-width: 44px;
-    }
+/* Focus visibility for keyboards */
+:focus-visible {
+    outline: 3px solid var(--accent-gold);
+    outline-offset: 2px;
 }

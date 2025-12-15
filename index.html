@@ -33,7 +33,13 @@
         rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/components/cards.css">
+    <link rel="stylesheet" href="css/components/balls.css">
+    <link rel="stylesheet" href="css/utils.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <!-- <link rel="stylesheet" href="css/style.css"> -->
     <link rel="stylesheet" href="css/snow.css">
     <link rel="stylesheet" href="css/modal.css">
     <link rel="stylesheet" href="css/accessibility.css">
@@ -148,7 +154,7 @@
                     <span class="mine-label">💣 Mayın Hakkı:</span>
                     <span class="mine-value" id="player-mine-lives">3</span>
                 </div>
-                <div class="cards-container" id="player-cards">
+                <div class="cards-container" id="player-cards" role="region" aria-label="Oyuncu Kartları">
                     <!-- Cards injected by JS -->
                 </div>
             </section>
@@ -190,7 +196,7 @@
 
                 <div class="drawn-balls-section">
                     <h3 class="drawn-balls-title">Çıkan Sayılar</h3>
-                    <div class="drawn-balls-grid" id="drawn-balls-grid">
+                    <div class="drawn-balls-grid" id="drawn-balls-grid" role="list" aria-label="Çıkan Sayılar Listesi">
                         <!-- All drawn balls will be added here as mini balls -->
                     </div>
                 </div>

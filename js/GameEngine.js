@@ -2,12 +2,14 @@
  * Game Engine for Tombala (Turkish Bingo)
  * Handles card generation, number drawing, and game state
  */
+import { GAME_CONFIG } from './config.js';
+
 export class GameEngine {
     /**
      * Creates a new GameEngine instance
      */
     constructor() {
-        this.numbers = Array.from({ length: 90 }, (_, i) => i + 1);
+        this.numbers = Array.from({ length: GAME_CONFIG.TOTAL_NUMBERS }, (_, i) => i + 1);
         this.drawnNumbers = [];
         this.cards = [];
     }
@@ -51,109 +53,137 @@ export class GameEngine {
      * @throws {Error} If unable to generate valid card after retries
      */
     createCard() {
-        // Tombala card generation logic
-        // 3 rows, 9 columns
-        // Each row has 5 numbers
-        // Columns have specific ranges
-
-        const cardLayout = Array(3).fill(null).map(() => Array(9).fill(0));
+        const cardLayout = Array(GAME_CONFIG.ROWS_PER_CARD).fill(null).map(() => Array(GAME_CONFIG.COLS_PER_CARD).fill(0));
         const colRanges = [
             [1, 9], [10, 19], [20, 29], [30, 39], [40, 49],
             [50, 59], [60, 69], [70, 79], [80, 90]
         ];
 
-        // We need to ensure each row has exactly 5 numbers
-        // And we don't pick the same number twice in the card
+        // 1. Distribute 15 numbers across 9 columns
+        // Rules:
+        // - Each row must have exactly 5 numbers.
+        // - Each column must have at least 1 number.
+        // - Max 3 numbers per column (since 3 rows).
 
-        // Simplified generation strategy for MVP:
-        // 1. For each row, pick 5 distinct column indices
-        // 2. For those columns, pick a number from that range
-        // 3. Ensure no duplicates across rows in the same column (naturally handled if we track used)
+        // Step 1: Assign 1 number to each of the 9 columns (ensures coverage)
+        let colCounts = Array(9).fill(1);
 
-        // Better strategy for validity:
-        // 1. Generate a pool of numbers for each column range for this card
-        // 2. Distribute them to rows
-
-        // Let's go with a robust method:
-        // Create 3 empty rows.
-        // We need 15 numbers total.
-        // Constraint: max 3 numbers per column (since 3 rows). In Tombala usually 1 or 2 per col.
-        // Actually, Tombala cards are tricky.
-        // Let's generate 15 valid numbers first, distributed across columns?
-        // No, row constraint is strict: 5 per row.
-
-        // Try this:
-        // For each row: select 5 unique random columns (0-8).
-        // For those cells, assign a random number from that column's range.
-        // Ensure that number hasn't been used in previous rows for that column.
-
-        const usedNumbers = new Set();
-
-        for (let r = 0; r < 3; r++) {
-            // Pick 5 columns
-            const cols = this.shuffle([0, 1, 2, 3, 4, 5, 6, 7, 8]).slice(0, 5);
-
-            // Sort columns to keep things ordered L-R
-            cols.sort((a, b) => a - b);
-
-            for (let c of cols) {
-                const [min, max] = colRanges[c];
-                let num;
-                let attempts = 0;
-
-                // Try to find unique random number
-                do {
-                    num = Math.floor(Math.random() * (max - min + 1)) + min;
-                    attempts++;
-                } while (usedNumbers.has(num) && attempts < 100);
-
-                // Fallback: if still duplicate after 100 attempts, find next available in range
-                if (usedNumbers.has(num)) {
-                    let found = false;
-                    for (let candidate = min; candidate <= max; candidate++) {
-                        if (!usedNumbers.has(candidate)) {
-                            num = candidate;
-                            found = true;
-                            break;
-                        }
-                    }
-                    // If still no number found (shouldn't happen), skip this cell
-                    if (!found) {
-                        console.warn(`Could not generate unique number for column ${c}, row ${r}`);
-                        continue;
-                    }
-                }
-
-                usedNumbers.add(num);
-                cardLayout[r][c] = num;
+        // Step 2: Distribute remaining 6 numbers (15 total - 9 used) randomly
+        let remaining = GAME_CONFIG.NUMBERS_PER_CARD - 9;
+        while (remaining > 0) {
+            const randomCol = Math.floor(Math.random() * 9);
+            if (colCounts[randomCol] < 2) { // Allow up to 2 for now to spread evenly, max 3 is hard limit
+                colCounts[randomCol]++;
+                remaining--;
             }
         }
 
-        // Validate that we have exactly 15 numbers
-        const totalNumbers = usedNumbers.size;
-        if (totalNumbers !== 15) {
-            console.error(`Card generation failed: expected 15 numbers, got ${totalNumbers}`);
-            // Retry card generation
-            return this.createCard();
-        }
-
-        // Sort columns vertically - if a column has multiple numbers, arrange ascending
+        // Step 3: Assign actual numbers to columns
+        const colNumbers = [];
         for (let c = 0; c < 9; c++) {
-            const numsInCol = [];
-            for (let r = 0; r < 3; r++) {
-                if (cardLayout[r][c] !== 0) {
-                    numsInCol.push(cardLayout[r][c]);
-                }
-            }
-            numsInCol.sort((a, b) => a - b);
+            const count = colCounts[c];
+            const [min, max] = colRanges[c];
+            const available = [];
+            for (let n = min; n <= max; n++) available.push(n);
 
-            // Re-place them in the rows that had numbers
-            let idx = 0;
-            for (let r = 0; r < 3; r++) {
-                if (cardLayout[r][c] !== 0) {
-                    cardLayout[r][c] = numsInCol[idx++];
+            // Shuffle available numbers
+            for (let i = available.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [available[i], available[j]] = [available[j], available[i]];
+            }
+
+            // Take the needed amount
+            const selected = available.slice(0, count).sort((a, b) => a - b);
+            colNumbers.push(selected);
+        }
+
+        // Step 4: Place numbers into rows
+        // This is a constraint satisfaction problem. 
+        // We need 5 items per row. 
+        // Simple heuristic: Fill rows one by one with available column numbers.
+
+        const rowCounts = [0, 0, 0];
+
+        // Helper to find valid row for a number in a specific column
+        const placeNumber = (colIndex, number) => {
+            // Try to place in a row that:
+            // 1. Has space (< 5 numbers)
+            // 2. Doesn't have a number in this column yet
+            // 3. Maintains vertical order (if col has multiple nums, lower num goes to higher row index?? No, usually top to bottom is arbitrary or sorted)
+            // Actually standard tombala: columns are sorted top-down if multiple. 
+            // So if col 0 has [3, 8], row 0 gets 3, row 1 gets 8 (or row 2).
+
+            // Let's rely on the fact we sorted colNumbers[c]. 
+            // We just need to assign each number in colNumbers[c] to a distinct row 
+            // such that row counts don't exceed 5.
+
+            // We have to decide which rows these numbers go to.
+            // If a column has 3 numbers, they MUST go to rows 0, 1, 2.
+            // If 2 numbers, they go to distinct rows.
+            // If 1 number, goes to any row.
+
+            // Priority: Columns with 3 numbers fixes rows. Columns with 2 numbers constraints.
+            return;
+        };
+
+        // Improved placement strategy:
+        // Create an array of column indices [0..8]
+        // Sort them by how many numbers they have (descending). 
+        // Harder constraints first.
+
+        const colIndices = [0, 1, 2, 3, 4, 5, 6, 7, 8].sort((a, b) => colNumbers[b].length - colNumbers[a].length);
+
+        // Track which row has a number at which column
+        // We can just set cardLayout directly.
+
+        for (let c of colIndices) {
+            const nums = colNumbers[c];
+            const count = nums.length;
+
+            // We need 'count' distinct rows.
+            // We should pick rows that have the most space left?
+            // Or try to balance?
+
+            let possibleRows = [0, 1, 2].filter(r => rowCounts[r] < 5);
+
+            // If we have 3 numbers, we need rows 0,1,2.
+            // If valid rows < count, we have a problem (backtracking needed? or just retry entire card).
+            // Since we distribution 6 extra numbers, it's unlikely to paint into a corner if we randomize well, 
+            // but strict logic is better.
+
+            if (count === 3) {
+                // Must take 0, 1, 2
+                cardLayout[0][c] = nums[0]; rowCounts[0]++;
+                cardLayout[1][c] = nums[1]; rowCounts[1]++;
+                cardLayout[2][c] = nums[2]; rowCounts[2]++;
+            } else {
+                // Randomly select 'count' rows from valid 'possibleRows'
+                // Weighted by remaining space?
+
+                // Shuffle possibleRows
+                for (let i = possibleRows.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [possibleRows[i], possibleRows[j]] = [possibleRows[j], possibleRows[i]];
+                }
+
+                // Take first 'count' rows
+                if (possibleRows.length < count) {
+                    // Generation failed for this specific layout, extremely rare with this heuristic 
+                    // but helps to just recursively retry from scratch which is fast.
+                    return this.createCard();
+                }
+
+                for (let k = 0; k < count; k++) {
+                    const r = possibleRows[k];
+                    cardLayout[r][c] = nums[k];
+                    rowCounts[r]++;
                 }
             }
+        }
+
+        // Final verification
+        if (rowCounts.some(c => c !== 5)) {
+            return this.createCard();
         }
 
         return cardLayout;
@@ -242,7 +272,7 @@ export class GameEngine {
      * @param {number} count - Number of mines to assign (default 3)
      * @returns {Set<number>} Set of numbers that are mines
      */
-    assignMines(card, count = 3) {
+    assignMines(card, count = GAME_CONFIG.MINE_COUNT) {
         // Collect all valid numbers from the card
         const validNumbers = [];
         card.flat().forEach(num => {
@@ -284,8 +314,8 @@ export class GameEngine {
             }
         });
 
-        if (mineHits >= 3) return 'KNOCKOUT';
-        if (safeHits >= 12) return 'WIN';
+        if (mineHits >= GAME_CONFIG.MAX_MINE_LIVES) return 'KNOCKOUT';
+        if (safeHits >= GAME_CONFIG.SAFE_HITS_TO_WIN) return 'WIN';
         return null;
     }
 }

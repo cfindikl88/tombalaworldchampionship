@@ -1,0 +1,55 @@
+/* ========================================
+   CSS VARIABLES - DESIGN TOKENS
+   ======================================== */
+
+:root {
+    /* Background Colors */
+    --bg-dark: #0b1026;
+
+    /* Brand Colors */
+    --primary-red: #d42426;
+    --secondary-green: #165b33;
+    --accent-gold: #f8b229;
+
+    /* Text & Glass Effects */
+    --text-light: #f0f0f0;
+    --glass-bg: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+    /* Typography */
+    --font-heading: 'Montserrat', sans-serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Ball Colors (Billiard Style) */
+    --ball-c-1: #FFEB3B;    /* Yellow */
+    --ball-c-2: #1976D2;    /* Blue */
+    --ball-c-3: #D32F2F;    /* Red */
+    --ball-c-4: #7B1FA2;    /* Purple */
+    --ball-c-5: #F57C00;    /* Orange */
+    --ball-c-6: #388E3C;    /* Green */
+    --ball-c-7: #5D4037;    /* Maroon */
+    --ball-c-8: #212121;    /* Black */
+    --ball-c-9: #00ACC1;    /* Teal */
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-dark);
+    background: radial-gradient(circle at top, #1a2240 0%, var(--bg-dark) 100%);
+    color: var(--text-light);
+    font-family: var(--font-body);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
