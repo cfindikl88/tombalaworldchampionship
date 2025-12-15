@@ -1,0 +1,25 @@
+{
+    "name": "tombala-world-championship",
+    "version": "4.0.0",
+    "description": "Yılbaşı Tombalası - 32 Team Tournament Mode",
+    "type": "module",
+    "scripts": {
+        "test": "vitest",
+        "test:ui": "vitest --ui",
+        "test:coverage": "vitest --coverage",
+        "serve": "python3 -m http.server 9843"
+    },
+    "devDependencies": {
+        "@vitest/ui": "^1.0.0",
+        "vitest": "^1.0.0",
+        "@vitest/coverage-v8": "^1.0.0"
+    },
+    "keywords": [
+        "tombala",
+        "bingo",
+        "game",
+        "tournament"
+    ],
+    "author": "Tombala World Championship",
+    "license": "MIT"
+}

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://fonts.googleapis.com https://fonts.gstatic.com;">
+    <meta name="description"
+        content="Yılbaşı Tombalası - 32 ülke ile heyecan dolu tombala dünya şampiyonası! Online tombala oyunu oyna, turnuva kazan!">
+    <meta name="keywords" content="tombala, bingo, yılbaşı, dünya şampiyonası, online oyun, tombala oyunu">
+    <meta name="author" content="Tombala World Championship">
+    <meta name="theme-color" content="#0b1026">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Yılbaşı Tombalası - Dünya Şampiyonası">
+    <meta property="og:description"
+        content="32 ülke ile tombala turnuvasında yarış! Heyecan dolu maçlar, otomatik çekiliş ve daha fazlası.">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Yılbaşı Tombalası - Dünya Şampiyonası">
+    <meta name="twitter:description" content="32 ülke ile tombala turnuvasında yarış!">
+
+    <title>Yılbaşı Tombalası - Dünya Şampiyonası 🎄</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/snow.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+</head>
+
+<body>
+    <div id="christmas-snow"></div>
+
+    <!-- Country Selection Screen -->
+    <div id="country-selection-screen" class="screen active">
+        <div class="screen-content">
+            <h1 class="tournament-title">🏆 Tombala Dünya Şampiyonası 🏆</h1>
+            <p class="tournament-subtitle">En iyi Tombala turnuvasında yarışmak için 32 ülke seçin!</p>
+
+            <div class="selection-controls">
+                <input type="text" id="country-search" class="search-input" placeholder="🔍 Ülke Ara..."
+                    role="searchbox" aria-label="Ülke arama kutusu" />
+                <button id="btn-random-32" class="btn primary-btn large" aria-label="Rastgele 32 ülke seç">🎲 Rastgele
+                    32 Ülke</button>
+                <button id="btn-start-tournament" class="btn accent-btn large" disabled aria-label="Turnuvayı başlat"
+                    aria-disabled="true">Turnuvayı Başlat</button>
+            </div>
+
+            <div id="country-grid" class="country-grid" role="list" aria-label="Ülke seçim listesi">
+                <!-- Countries will be populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Continent Breakdown Screen -->
+    <div id="continent-breakdown-screen" class="screen">
+        <div class="screen-content">
+            <h1 class="section-title">🌍 Kıta Dağılımı</h1>
+            <p class="section-subtitle">Seçilen 32 ülkenin kıtalara göre dağılımı</p>
+            <div id="continent-grid" class="continent-grid"></div>
+            <button id="btn-continue-to-draw" class="btn accent-btn large">Kura Çekimine Devam Et 🎲</button>
+        </div>
+    </div>
+
+    <!-- Tournament Bracket Screen -->
+    <div id="bracket-screen" class="screen">
+        <div class="screen-content">
+            <section class="game-screen">
+                <div class="container">
+                    <h1 class="section-title">Turnuva Ağacı</h1>
+
+                    <!-- Bot Difficulty Selector -->
+                    <div class="difficulty-selector" id="difficulty-selector"
+                        style="text-align: center; margin: 20px 0;">
+                        <label for="bot-difficulty-select"
+                            style="font-size: 1.1em; font-weight: bold; margin-right: 10px;">
+                            🤖 Bot Zorluğu:
+                        </label>
+                        <select id="bot-difficulty-select" class="difficulty-select"
+                            style="padding: 8px 15px; font-size: 1em; border-radius: 8px; border: 2px solid var(--accent); background: var(--card-bg); color: var(--text-primary); cursor: pointer;">
+                            <option value="easy">😊 Kolay</option>
+                            <option value="medium" selected>😐 Normal</option>
+                            <option value="hard">😈 Zor</option>
+                        </select>
+                        <span id="difficulty-description"
+                            style="display: block; margin-top: 8px; font-size: 0.9em; color: var(--text-secondary); font-style: italic;">
+                            Dengeli bir oyun deneyimi
+                        </span>
+                    </div>
+
+                    <div id="bracket-player-info" class="bracket-player-info" role="status" aria-live="polite"></div>
+                    <div id="bracket-container" class="bracket-container" role="region" aria-label="Turnuva braketi">
+                    </div>
+                    <button id="btn-close-bracket" class="btn accent-btn large" aria-label="Sonraki maça geç">Sonraki
+                        Maç</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div class="app-container" id="game-container">
+        <header class="game-header">
+            <h1 class="game-title">🎄 Yılbaşı Tombalası 🎄</h1>
+            <div class="game-info">
+            </div>
+        </header>
+
+        <main class="game-board" id="game-board">
+            <!-- Left Side: Player Cards -->
+            <section class="player-section" id="player-section">
+                <div class="player-header">
+                    <div class="header-info">
+                        <h2>
+                            <span id="player-flag" class="country-flag">👤</span>
+                            <span id="player-name">Oyuncu</span>
+                            <span id="player-continent" class="continent-badge"></span>
+                        </h2>
+                        <div class="diff-badge" id="player-diff">0</div>
+                    </div>
+                    <div class="circular-progress-container">
+                        <div class="circular-progress" id="player-progress-circle">
+                            <span class="progress-value" id="player-progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="facts-container">
+                    <h3>Biliyor muydunuz?</h3>
+                    <ul id="player-facts" class="facts-list">
+                        <!-- Facts injected by JS -->
+                    </ul>
+                </div>
+                <div class="remaining-counter">
+                    <span class="remaining-label">Kalan Güvenli:</span>
+                    <span class="remaining-value" id="player-remaining">15</span>
+                </div>
+                <div class="mine-lives-counter">
+                    <span class="mine-label">💣 Mayın Hakkı:</span>
+                    <span class="mine-value" id="player-mine-lives">3</span>
+                </div>
+                <div class="cards-container" id="player-cards">
+                    <!-- Cards injected by JS -->
+                </div>
+            </section>
+
+            <!-- Center: Drawn Numbers Grid -->
+            <section class="machine-section">
+                <div class="game-controls">
+                    <button id="btn-draw" class="btn primary-btn" aria-label="Sayı çek">Çek</button>
+                    <button id="btn-auto" class="btn" aria-label="Otomatik çekilişi başlat/durdur">Otomatik Çek</button>
+                    <button id="btn-restart" class="btn" aria-label="Brakete dön">🔄 Braket</button>
+                    <button id="btn-mute" class="btn" aria-label="Sesi aç/kapat">🔊</button>
+                    <span class="bag-label">Torba:</span>
+                    <span id="bag-count" class="bag-count">90</span>
+                </div>
+
+                <!-- Current Ball Display -->
+                <div class="current-ball-display">
+                    <div class="current-ball-label">Son Çıkan</div>
+                    <div class="current-ball" id="current-ball">--</div>
+                </div>
+
+                <!-- Timers Display -->
+                <div class="scoreboard-timers">
+                    <div class="scoreboard-timer">
+                        <div class="timer-label">2026'ya Kalan</div>
+                        <div class="timer-value" id="scoreboard-countdown">--:--:--</div>
+                    </div>
+                    <div class="scoreboard-timer">
+                        <div class="timer-label">Oyun Süresi</div>
+                        <div class="timer-value" id="scoreboard-game-time">00:00</div>
+                    </div>
+                </div>
+                <div class="events-2026">
+                    <div class="events-title">🎉 2026 Önemli Etkinlikler</div>
+                    <div class="event-item">⚽ FIFA Dünya Kupası (ABD, Kanada, Meksika)</div>
+                    <div class="event-item">🏒 Milano-Cortina Kış Olimpiyatları</div>
+                    <div class="event-item">🎭 Avrupa Kültür Başkentleri (Trenčín, Oulu)</div>
+                </div>
+
+                <div class="drawn-balls-section">
+                    <h3 class="drawn-balls-title">Çıkan Sayılar</h3>
+                    <div class="drawn-balls-grid" id="drawn-balls-grid">
+                        <!-- All drawn balls will be added here as mini balls -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Bot/Opponent -->
+            <section class="opponent-section" id="opponent-section">
+                <div class="player-header">
+                    <div class="header-info">
+                        <h2>
+                            <span id="bot-flag" class="country-flag">🤖</span>
+                            <span id="bot-name">Bilgisayar</span>
+                            <span id="bot-continent" class="continent-badge"></span>
+                        </h2>
+                        <div class="diff-badge" id="bot-diff">0</div>
+                    </div>
+                    <div class="circular-progress-container">
+                        <div class="circular-progress" id="bot-progress-circle">
+                            <span class="progress-value" id="bot-progress-text">0%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="facts-container">
+                    <h3>Biliyor muydunuz?</h3>
+                    <ul id="bot-facts" class="facts-list">
+                        <!-- Facts injected by JS -->
+                    </ul>
+                </div>
+                <div class="remaining-counter">
+                    <span class="remaining-label">Kalan Güvenli:</span>
+                    <span class="remaining-value" id="bot-remaining">15</span>
+                </div>
+                <div class="mine-lives-counter">
+                    <span class="mine-label">💣 Mayın Hakkı:</span>
+                    <span class="mine-value" id="bot-mine-lives">3</span>
+                </div>
+                <div class="cards-container" id="bot-cards">
+                    <!-- Cards injected by JS -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="game-controls-footer">
+            <div class="music-player-container">
+                <div class="vinyl-wrapper" id="vinyl-record">
+                    <div class="vinyl-disk">
+                        <div class="vinyl-label"></div>
+                    </div>
+                </div>
+                <div class="music-info">
+                    <span class="song-title">I Wish You A Merry Xmas</span>
+                    <span class="artist-name">David Tavare</span>
+                    <span class="song-time"><span class="song-elapsed">--:--</span> / <span
+                            class="song-remaining">--:--</span></span>
+                </div>
+            </div>
+            <div class="footer-controls">
+                <button id="btn-restart" class="btn accent-btn">Yeni Oyun</button>
+            </div>
+        </footer>
+
+        <audio id="bg-music">
+            <source src="assets/audio/david-tavare.mp3" type="audio/mpeg">
+        </audio>
+
+        <section id="game-screen" class="game-container">
+            <div id="game-countdown-overlay" class="countdown-overlay hidden" role="alert" aria-live="assertive">
+                <div class="countdown-number"></div>
+            </div>
+    </div>
+
+    <!-- Initialization -->
+    <script type="module" src="js/App.js?v=TIMESTAMP"></script>
+</body>
+
+</html>

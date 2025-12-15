@@ -1,0 +1,143 @@
+/* Modal Dialog Styles */
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(11, 16, 38, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.modal {
+    background: var(--glass-bg);
+    border: 2px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    transform: scale(0.8) translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.modal-backdrop.active .modal {
+    transform: scale(1) translateY(0);
+}
+
+.modal-content {
+    padding: 2rem;
+}
+
+.modal-title {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--accent-gold);
+    margin: 0 0 1rem 0;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(248, 178, 41, 0.5);
+}
+
+.modal-message {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin: 0 0 2rem 0;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.modal-btn {
+    min-width: 120px;
+}
+
+/* Modal Types */
+.modal-success .modal-title {
+    color: var(--secondary-green);
+    text-shadow: 0 0 10px rgba(22, 91, 51, 0.5);
+}
+
+.modal-success {
+    border-color: rgba(22, 91, 51, 0.5);
+}
+
+.modal-error .modal-title {
+    color: var(--primary-red);
+    text-shadow: 0 0 10px rgba(212, 36, 38, 0.5);
+}
+
+.modal-error {
+    border-color: rgba(212, 36, 38, 0.5);
+}
+
+.modal-confirm .modal-title {
+    color: var(--accent-gold);
+}
+
+/* Focus Styles for Accessibility */
+.modal button:focus-visible {
+    outline: 3px solid var(--accent-gold);
+    outline-offset: 4px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+
+    .modal-backdrop,
+    .modal {
+        transition-duration: 0.01s;
+    }
+
+    .modal {
+        transform: scale(1);
+    }
+
+    .modal-backdrop.active .modal {
+        transform: scale(1);
+    }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .modal {
+        max-width: 95%;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+    }
+
+    .modal-message {
+        font-size: 1rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+}
